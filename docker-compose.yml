@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   wp:
@@ -27,9 +27,27 @@ services:
     user: xfs
     volumes:
       - ./wp-app:/var/www/html
+      - ./themes:/themes
+      - ./plugins:/plugins
+    working_dir: /var/www/html
     depends_on:
       - db
       - wp
+    command: >
+      bash -c "
+      wp core install --url=${WP_URL:-http://localhost} --title=${WP_TITLE:-Shop} --admin_user=${WP_ADMIN_USER:-admin} --admin_password=${WP_ADMIN_PASSWORD:-admin} --admin_email=${WP_ADMIN_EMAIL:-orhanveliesen@gmail.com} && 
+      wp plugin install woocommerce --activate && 
+      wp plugin install /plugins/woocommerce-gateway-stripe.4.4.0.zip --activate && 
+      wp plugin install /plugins/wwoocommerce-payments.1.0.1.zip --activate && 
+      wp plugin install /plugins/woocommerce-services.1.23.1.zip --activate && 
+
+      wp theme install /themes/envo-storefront.1.0.5.zip --activate && 
+
+      echo DONE
+      "
+
+      
+
 
   phpmyadmin:
     networks: 
