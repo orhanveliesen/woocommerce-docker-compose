@@ -24,7 +24,9 @@ services:
     networks: 
       - woocommerce
     image: wordpress:cli
-    user: xfs
+    user: 33:33
+    environment:
+      HOME: /tmp
     volumes:
       - ./wp-app:/var/www/html
       - ./themes:/themes
@@ -36,18 +38,17 @@ services:
     command: >
       bash -c "
       wp core install --url=${WP_URL:-http://localhost} --title=${WP_TITLE:-Shop} --admin_user=${WP_ADMIN_USER:-admin} --admin_password=${WP_ADMIN_PASSWORD:-admin} --admin_email=${WP_ADMIN_EMAIL:-orhanveliesen@gmail.com} && 
-      wp plugin install woocommerce --activate && 
-      wp plugin install /plugins/woocommerce-gateway-stripe.4.4.0.zip --activate && 
-      wp plugin install /plugins/wwoocommerce-payments.1.0.1.zip --activate && 
-      wp plugin install /plugins/woocommerce-services.1.23.1.zip --activate && 
+      wp plugin install /plugins/woocommerce.4.2.0.zip --activate &&
+      wp plugin install jetpack --activate && 
+      wp plugin install /plugins/woocommerce-gateway-stripe.4.4.0.zip --activate &&
+      wp plugin install /plugins/woocommerce-payments.1.0.1.zip --activate &&
+      wp plugin install /plugins/woocommerce-services.1.23.1.zip --activate &&
+      wp theme install /themes/envo-storefront.1.0.5.zip --activate &&
 
-      wp theme install /themes/envo-storefront.1.0.5.zip --activate && 
+
 
       echo DONE
       "
-
-      
-
 
   phpmyadmin:
     networks: 
@@ -72,13 +73,11 @@ services:
         '--collation-server=utf8mb4_unicode_ci'
     ]
     volumes:
-      - db_data:/var/lib/mysql
+      - ./db-data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: wordpress
       MYSQL_ROOT_PASSWORD: password
 
-volumes:
-  db_data:
 networks: 
   woocommerce:
     driver: overlay
